@@ -24,6 +24,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -74,7 +75,7 @@ public class ActivityUsage extends ActivityBase {
 		Bundle extras = getIntent().getExtras();
 		mUid = (extras == null ? 0 : extras.getInt(cUid, 0));
 		mRestrictionName = (extras == null ? null : extras.getString(cRestriction));
-
+		
 		// Show title
 		updateTitle();
 
@@ -166,8 +167,9 @@ public class ActivityUsage extends ActivityBase {
 		@Override
 		protected List<PRestriction> doInBackground(Object... arg0) {
 			List<PRestriction> listUsageData = new ArrayList<PRestriction>();
-			for (PRestriction usageData : PrivacyManager.getUsageList(ActivityUsage.this, mUid, mRestrictionName))
+			for (PRestriction usageData : PrivacyManager.getUsageList(ActivityUsage.this, mUid, mRestrictionName)) {
 				listUsageData.add(usageData);
+			}
 			return listUsageData;
 		}
 

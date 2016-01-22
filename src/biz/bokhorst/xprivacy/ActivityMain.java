@@ -1623,6 +1623,11 @@ public class ActivityMain extends ActivityBase implements OnItemSelectedListener
 		public AppListAdapter(Context context, int resource, List<ApplicationInfoEx> objects,
 				String initialRestrictionName) {
 			super(context, resource, objects);
+			
+			if(initialRestrictionName != null)
+				Log.v(PKDConstants.getDebugTag(), initialRestrictionName);
+			else
+				Log.v(PKDConstants.getDebugTag(), "It was null PKD!");
 			mContext = context;
 			mListAppAll = new ArrayList<ApplicationInfoEx>();
 			mListAppAll.addAll(objects);
