@@ -230,7 +230,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 				Class<?> cServiceManager = Class.forName("android.os.ServiceManager");
 				Method mGetService = cServiceManager.getDeclaredMethod("getService", String.class);
 				mClient = IPrivacyService.Stub.asInterface((IBinder) mGetService.invoke(null, getServiceName()));
-				Log.v(Constants.getDebugTag(), getServiceName());
+				Log.v(PKDConstants.getDebugTag(), getServiceName());
 			} catch (Throwable ex) {
 				Util.bug(null, ex);
 			}
@@ -887,11 +887,13 @@ public class PrivacyService extends IPrivacyService.Stub {
 		long lastUsage = 0;
 		try {
 			int uid = -1;
-			for (PRestriction restriction : listRestriction)
+			for (PRestriction restriction : listRestriction) {
+				Log.v(PKDConstants.getDebugTag(), Integer.toString(restriction.uid));
 				if (uid < 0)
 					uid = restriction.uid;
 				else if (uid != restriction.uid)
 					throw new SecurityException();
+			}
 			enforcePermission(uid);
 			SQLiteDatabase dbUsage = getDbUsage();
 

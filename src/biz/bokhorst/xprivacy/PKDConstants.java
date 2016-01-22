@@ -1,6 +1,6 @@
 package biz.bokhorst.xprivacy;
 
-public class Constants {
+public class PKDConstants {
 
 	private static final String DebugTag = new String("XPrivacyPrajit");
 
