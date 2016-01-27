@@ -1593,3 +1593,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with XPrivacy.  If not, see [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).
+
+* Original source was [here](https://github.com/M66B/XPrivacy)
+* We will try to use it for own purposes.
+* We split from original repo @ [commit](https://github.com/M66B/XPrivacy/tree/f708861701db6a2893ccdf670b945a89ad0a5ade)
