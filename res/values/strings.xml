@@ -2,6 +2,7 @@
 
     <!-- Translators: do not include texts with translatable="false" -->
     <string name="app_name" translatable="false">XPrivacy</string>
+    <string name="provider_name" translatable="false">XPrivacy Provider</string>
     <string name="app_notenabled">XPrivacy is not enabled in the Xposed installer</string>
     <string name="app_wrongandroid">Only for Android version 4.0.3+</string>
     <string name="app_incompatible">XPrivacy is incompatible with %1$s</string>
@@ -267,6 +268,7 @@ however it is impossible to guarantee it will work flawlessly on each and every 
     <string name="tutorial_detailslist">Tap the down arrow to see the function exceptions of a restriction category</string>
     <string name="permission_manage">Manage applications, including killing</string>
     <string name="permission_restrictions">Manage XPrivacy restrictions and settings</string>
+    <string name="permission_read_write_xprivacy_data">Read write XPrivacy data</string>
     <string name="fingerprint" translatable="false">10620ae961d78854f6c9cd872c4388232849c799</string>
 
 </resources>
