@@ -219,6 +219,14 @@
             android:permission="biz.bokhorst.xprivacy.READ_WRITE_XPRIVACY_DATA" >
 		</provider>
 		
-    </application>
+        <provider
+			android:name=".PrivacyProvider" 
+			android:authorities="biz.bokhorst.xprivacy.provider"
+			android:exported="true"
+            android:label="@string/provider_name"
+            android:permission="biz.bokhorst.xprivacy.READ_WRITE_XPRIVACY_DATA" >
+		</provider>
+		
+	</application>
 
 </manifest>

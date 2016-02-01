@@ -45,8 +45,8 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.StrictMode;
-import android.os.SystemClock;
 import android.os.StrictMode.ThreadPolicy;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -67,6 +67,7 @@ import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import biz.bokhorst.xprivacy.data.PrajitDBHelper;
 
 public class PrivacyService extends IPrivacyService.Stub {
 	private static int mXUid = -1;
@@ -710,6 +711,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 						try {
 							if (XActivityManagerService.canWriteUsageData()) {
 								SQLiteDatabase dbUsage = getDbUsage();
+								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
+								SQLiteDatabase prajitDB = dbHelper.getWritableDatabase();
+								
 								if (dbUsage == null)
 									return;
 
@@ -724,11 +728,12 @@ public class PrivacyService extends IPrivacyService.Stub {
 									if (!getSettingBool(userId, PrivacyManager.cSettingValues, false))
 										restriction.value = null;
 
+								ContentValues values = null;
 								mLockUsage.writeLock().lock();
 								try {
 									dbUsage.beginTransaction();
 									try {
-										ContentValues values = new ContentValues();
+										values = new ContentValues();
 										values.put("uid", restriction.uid);
 										values.put("restriction", restriction.restrictionName);
 										values.put("method", restriction.methodName);
@@ -741,7 +746,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 											values.put("value", restriction.value);
 										dbUsage.insertWithOnConflict(cTableUsage, null, values,
 												SQLiteDatabase.CONFLICT_REPLACE);
-
+										
 										dbUsage.setTransactionSuccessful();
 									} finally {
 										dbUsage.endTransaction();
@@ -749,6 +754,10 @@ public class PrivacyService extends IPrivacyService.Stub {
 								} finally {
 									mLockUsage.writeLock().unlock();
 								}
+								
+								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
+								prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 							}
 						} catch (SQLiteException ex) {
 							Util.log(null, Log.WARN, ex.toString());

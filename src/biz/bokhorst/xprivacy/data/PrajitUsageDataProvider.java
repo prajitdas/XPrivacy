@@ -10,7 +10,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
@@ -19,7 +18,7 @@ public class PrajitUsageDataProvider extends ContentProvider {
 	public static final String PREFIX = "content://";
 	public static final String SLASH = "/"; 
 
-	//Table names
+	//URIs
 	public static final String PATH_RESTRICTION = "restriction";
 	public static final String PATH_USAGE = "usage";
 	public static final String PATH_SETTINGS = "settings";
@@ -29,27 +28,6 @@ public class PrajitUsageDataProvider extends ContentProvider {
 	public static final Uri URI_USAGE = Uri.parse(PREFIX + AUTHORITY + SLASH + PATH_USAGE);
 	public static final Uri URI_SETTING = Uri.parse(PREFIX + AUTHORITY + SLASH + PATH_SETTINGS);
 
-	//Restriction table column names
-	public static final String COL_RESTRCITION_TAB_UID = "uid";
-	public static final String COL_RESTRCITION_TAB_RESTRICTION = "restriction";
-	public static final String COL_RESTRCITION_TAB_METHOD = "method";
-	public static final String COL_RESTRCITION_TAB_RESTRICTED = "restricted";
-
-	//Usage table column names
-	public static final String COL_USAGE_TAB_UID = "uid";
-	public static final String COL_USAGE_TAB_RESTRICTION = "restriction";
-	public static final String COL_USAGE_TAB_METHOD = "method";
-	public static final String COL_USAGE_TAB_EXTRA = "extra";
-	public static final String COL_USAGE_TAB_RESTRICTED = "restricted";
-	public static final String COL_USAGE_TAB_TIME = "time";
-	public static final String COL_USAGE_TAB_VALUE = "value";
-
-	//Settings table column names
-	public static final String COL_SETTINGS_TAB_UID = "uid";
-	public static final String COL_SETTINGS_TAB_NAME = "name";
-	public static final String COL_SETTINGS_TAB_VALUE = "value";
-	public static final String COL_SETTINGS_TAB_TYPE = "type";
-	
 	//Uri matchers
 	private static final UriMatcher uriMatcher;
 	private static final int URI_TYPE_RESTRICTION = 1;
@@ -71,19 +49,40 @@ public class PrajitUsageDataProvider extends ContentProvider {
 	*/
 	private SQLiteDatabase db;
 
-	static final String DATABASE_NAME = "XPrivacyDB";
-	static final int DATABASE_VERSION = 1;
-	
-	static final String RESTRICTIONS_TABLE_NAME = "restriction";
-	static final String USAGE_TABLE_NAME = "usage";
-	static final String SETTINGS_TABLE_NAME = "settings";
+	//Restriction table column names
+	public static final String COL_RESTRCITION_TAB_UID = "uid";
+	public static final String COL_RESTRCITION_TAB_RESTRICTION = "restriction";
+	public static final String COL_RESTRCITION_TAB_METHOD = "method";
+	public static final String COL_RESTRCITION_TAB_RESTRICTED = "restricted";
 
-	static final String CREATE_RESTRICTIONS_TABLE = "CREATE TABLE restriction ("
+	//Usage table column names
+	public static final String COL_USAGE_TAB_UID = "uid";
+	public static final String COL_USAGE_TAB_RESTRICTION = "restriction";
+	public static final String COL_USAGE_TAB_METHOD = "method";
+	public static final String COL_USAGE_TAB_EXTRA = "extra";
+	public static final String COL_USAGE_TAB_RESTRICTED = "restricted";
+	public static final String COL_USAGE_TAB_TIME = "time";
+	public static final String COL_USAGE_TAB_VALUE = "value";
+
+	//Settings table column names
+	public static final String COL_SETTINGS_TAB_UID = "uid";
+	public static final String COL_SETTINGS_TAB_NAME = "name";
+	public static final String COL_SETTINGS_TAB_VALUE = "value";
+	public static final String COL_SETTINGS_TAB_TYPE = "type";
+
+	public static final String DATABASE_NAME = "XPrivacyDB";
+	public static final int DATABASE_VERSION = 1;
+	
+	public static final String RESTRICTIONS_TABLE_NAME = "restriction";
+	public static final String USAGE_TABLE_NAME = "usage";
+	public static final String SETTINGS_TABLE_NAME = "settings";
+
+	public static final String CREATE_RESTRICTIONS_TABLE = "CREATE TABLE restriction ("
 			+ COL_RESTRCITION_TAB_UID +" INTEGER NOT NULL,"
 			+ COL_RESTRCITION_TAB_RESTRICTION + " TEXT NOT NULL,"
 			+ COL_RESTRCITION_TAB_METHOD + " TEXT NOT NULL,"
 			+ COL_RESTRCITION_TAB_RESTRICTED + " INTEGER NOT NULL);"; 
-	static final String CREATE_USAGE_TABLE = "CREATE TABLE usage ("
+	public static final String CREATE_USAGE_TABLE = "CREATE TABLE usage ("
 			+ COL_USAGE_TAB_UID + " INTEGER NOT NULL,"
 			+ COL_USAGE_TAB_RESTRICTION + " TEXT NOT NULL,"
 			+ COL_USAGE_TAB_METHOD + " TEXT NOT NULL,"
@@ -91,41 +90,16 @@ public class PrajitUsageDataProvider extends ContentProvider {
 			+ COL_USAGE_TAB_RESTRICTED + " INTEGER NOT NULL,"
 			+ COL_USAGE_TAB_TIME + " INTEGER NOT NULL,"
 			+ COL_USAGE_TAB_VALUE + " TEXT);";
-	static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ("
+	public static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ("
 			+ COL_SETTINGS_TAB_UID + " INTEGER NOT NULL,"
 			+ COL_SETTINGS_TAB_NAME + " TEXT NOT NULL,"
 			+ COL_SETTINGS_TAB_VALUE + " TEXT,"
 			+ COL_SETTINGS_TAB_TYPE + " TEXT);";
-	
-	/**
-	* Helper class that actually creates and manages 
-	* the provider's underlying data repository.
-	*/
-	private static class DatabaseHelper extends SQLiteOpenHelper {
-		DatabaseHelper(Context context){
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-		
-		@Override
-		public void onCreate(SQLiteDatabase db) { //On create for database
-			db.execSQL(CREATE_RESTRICTIONS_TABLE);
-			db.execSQL(CREATE_USAGE_TABLE);
-			db.execSQL(CREATE_SETTINGS_TABLE);
-		}
-		
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS " + RESTRICTIONS_TABLE_NAME);
-			db.execSQL("DROP TABLE IF EXISTS " + USAGE_TABLE_NAME);
-			db.execSQL("DROP TABLE IF EXISTS " + SETTINGS_TABLE_NAME);
-			onCreate(db);
-		}
-	}
 
 	@Override
 	public boolean onCreate() { //On create for content provider
 		Context context = getContext();
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
+		PrajitDBHelper dbHelper = new PrajitDBHelper(context);
 		/**
 		* Create a write able database which will trigger its 
 		* creation if it doesn't already exist.
