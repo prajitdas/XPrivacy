@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
-import edu.umbc.cs.ebiquity.mithril.command.COMMANDApplication;
+import biz.bokhorst.xprivacy.PKDConstants;
 
 public class PrajitUsageDataProvider extends ContentProvider {
 	public static final String AUTHORITY = "biz.bokhorst.xprivacy.data.provider";
@@ -166,17 +166,11 @@ public class PrajitUsageDataProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		long rowid;
-		try{
-			/**
-			* Add a new record
-			*/
-			long rowID = db.insert(USAGE_TABLE_NAME, null, values);
-		} catch (SQLException e) {
-            Log.e(COMMANDApplication.getDebugTag(), "Error inserting " + values, e);
-            return -1;
-		}
-		return 1;
+		/**
+		* Add a new record
+		*/
+		long rowID = db.insert(USAGE_TABLE_NAME, null, values);
+		Log.v(PKDConstants.getDebugTag(), Long.toString(rowID));
 
 		/** 
 		* If record is added successfully

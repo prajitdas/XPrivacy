@@ -757,9 +757,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 								}
 								
 								//TODO Prajit's code
-								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
+//								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
 								prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);//, SQLiteDatabase.CONFLICT_REPLACE);
-								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
+//								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 							}
 						} catch (SQLiteException ex) {
 							Util.log(null, Log.WARN, ex.toString());
