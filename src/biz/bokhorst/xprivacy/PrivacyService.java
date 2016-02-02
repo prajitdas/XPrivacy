@@ -711,6 +711,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 						try {
 							if (XActivityManagerService.canWriteUsageData()) {
 								SQLiteDatabase dbUsage = getDbUsage();
+								//TODO Prajit's code
 								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
 								SQLiteDatabase prajitDB = dbHelper.getWritableDatabase();
 								
@@ -755,8 +756,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 									mLockUsage.writeLock().unlock();
 								}
 								
+								//TODO Prajit's code
 								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
-								prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+								prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);//, SQLiteDatabase.CONFLICT_REPLACE);
 								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 							}
 						} catch (SQLiteException ex) {
