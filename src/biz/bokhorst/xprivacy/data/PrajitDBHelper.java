@@ -9,6 +9,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import biz.bokhorst.xprivacy.PKDConstants;
+import biz.bokhorst.xprivacy.PUsage;
 
 /**
 * Helper class that actually creates and manages 
@@ -99,90 +101,20 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param anAppInfo
 	 * @return
 	 */
-	public int addUsage(SQLiteDatabase db, AppInfo anAppInfo) {
+	public int addUsage(SQLiteDatabase db, PUsage aPUsage) {
 		ContentValues values = new ContentValues();
-		values.put(APPLABEL, anAppInfo.getLabel());
-		values.put(APPPACK, anAppInfo.getPackageName());
-		values.put(APPPERM, anAppInfo.getPermissions());
+		values.put(COL_USAGE_TAB_UID, aPUsage.uid);
+		values.put(COL_USAGE_TAB_RESTRICTION, aPUsage.restrictionName);
+		values.put(COL_USAGE_TAB_METHOD, aPUsage.methodName);
+		values.put(COL_USAGE_TAB_EXTRA, aPUsage.extra);
+		values.put(COL_USAGE_TAB_RESTRICTED, aPUsage.restricted);
+		values.put(COL_USAGE_TAB_TIME, aPUsage.time);
+		values.put(COL_USAGE_TAB_VALUE, aPUsage.value);
 		try{
-			db.insert(APPLICATION_TABLE_NAME, null, values);
+			db.insert(USAGE_TABLE_NAME, null, values);
 		} catch (SQLException e) {
-            Log.e(COMMANDApplication.getDebugTag(), "Error inserting " + values, e);
-            return -1;
-		}
-		return 1;
-	}
-	
-	/**
-	 * method to insert into policy table the policy
-	 * @param db
-	 * @param aPolicyRule
-	 * @return
-	 */
-	public int addPolicy(SQLiteDatabase db, PolicyInfo aPolicyRule) {
-		ContentValues values = new ContentValues();
-		values.put(POLAPPID, aPolicyRule.getAppId());
-		values.put(POLPROVID, aPolicyRule.getProvId());
-		values.put(CONTEXTLOC, aPolicyRule.getUserContext().getLocation());
-		values.put(CONTEXTACT, aPolicyRule.getUserContext().getActivity());
-		values.put(CONTEXTTIME, aPolicyRule.getUserContext().getTime());
-		values.put(CONTEXTID, aPolicyRule.getUserContext().getIdentity());
-		if(aPolicyRule.isRule())
-			values.put(POLICY, 1);
-		else
-			values.put(POLICY, 0);
-		values.put(POLACCLVL, aPolicyRule.getAccessLevel());
-		try {
-			db.insert(POLICY_TABLE_NAME, null, values);
-		} catch (SQLException e) {
-	        Log.e(COMMANDApplication.getDebugTag(), "Error inserting " + values, e);
-	        return -1;
-		}
-		return 1;
-	}
-
-	/**
-	 * method to insert into provider table the provider
-	 * @param db
-	 * @param aProvider
-	 * @return
-	 */
-	public int addProvider(SQLiteDatabase db, ProvInfo aProvider) {
-		ContentValues values = new ContentValues();
-		values.put(PROVLABEL, aProvider.getLabel());
-		values.put(PROVPRO, aProvider.getProviderName());
-		values.put(PROVAUTH, aProvider.getAuthority());
-		values.put(PROVREADPERM, aProvider.getReadPermission());
-		values.put(PROVWRITEPERM, aProvider.getWritePermission());
-		try {
-			db.insert(PROVIDER_TABLE_NAME, null, values);
-		} catch (SQLException e) {
-	        Log.e(COMMANDApplication.getDebugTag(), "Error inserting " + values, e);
-	        return -1;
-		}
-		return 1;
-	}
-
-
-	/**
-	 * method to insert into service table the service
-	 * @param db
-	 * @param aService
-	 * @return
-	 */
-	public int addService(SQLiteDatabase db, ServInfo aService) {
-		ContentValues values = new ContentValues();
-		values.put(SERVLABEL, aService.getServiceLabel());
-		values.put(SERVNAME, aService.getServiceName());
-		values.put(SERVENABLED, aService.isEnabled());
-		values.put(SERVEXPORTED, aService.isExported());
-		values.put(SERVPROCESS, aService.getProcess());
-		values.put(SERVPERM, aService.getPermission());
-		try {
-			db.insert(SERVICE_TABLE_NAME, null, values);
-		} catch (SQLException e) {
-	        Log.e(COMMANDApplication.getDebugTag(), "Error inserting " + values, e);
-	        return -1;
+			Log.e(PKDConstants.getDebugTag(), "Error inserting " + values, e);
+			return -1;
 		}
 		return 1;
 	}
@@ -192,7 +124,7 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param db
 	 * @param anAppInfo
 	 */
-	public void deleteApplication(SQLiteDatabase db, AppInfo anAppInfo) {
+	public void deleteUsage(SQLiteDatabase db, AppInfo anAppInfo) {
 		db.delete(APPLICATION_TABLE_NAME, APPID + " = ?",
 				new String[] { String.valueOf(anAppInfo.getId()) });
 	}

@@ -9,11 +9,9 @@ public class PUsage implements Parcelable {
 	public String restrictionName;
 	public String methodName;
 	public boolean restricted;
-	public boolean asked;
 	public String extra;
 	public String value;
 	public long time;
-	public boolean debug;
 
 	// The extra is never needed in the result
 
@@ -25,11 +23,9 @@ public class PUsage implements Parcelable {
 		restrictionName = other.restrictionName;
 		methodName = other.methodName;
 		restricted = other.restricted;
-		asked = other.asked;
 		extra = null;
 		value = other.value;
 		time = other.time;
-		debug = other.debug;
 	}
 
 	public PUsage(int _uid, String category, String method) {
@@ -37,11 +33,9 @@ public class PUsage implements Parcelable {
 		restrictionName = category;
 		methodName = method;
 		restricted = false;
-		asked = false;
 		extra = null;
 		value = null;
 		time = 0;
-		debug = false;
 	}
 
 	public PUsage(int _uid, String category, String method, boolean _restricted) {
@@ -49,11 +43,9 @@ public class PUsage implements Parcelable {
 		restrictionName = category;
 		methodName = method;
 		restricted = _restricted;
-		asked = false;
 		extra = null;
 		value = null;
 		time = 0;
-		debug = false;
 	}
 
 	public PUsage(int _uid, String category, String method, boolean _restricted, boolean _asked) {
@@ -61,11 +53,9 @@ public class PUsage implements Parcelable {
 		restrictionName = category;
 		methodName = method;
 		restricted = _restricted;
-		asked = _asked;
 		extra = null;
 		value = null;
 		time = 0;
-		debug = false;
 	}
 
 	public static final Parcelable.Creator<PUsage> CREATOR = new Parcelable.Creator<PUsage>() {
@@ -95,7 +85,6 @@ public class PUsage implements Parcelable {
 			out.writeString(methodName);
 
 		out.writeInt(restricted ? 1 : 0);
-		out.writeInt(asked ? 1 : 0);
 
 		out.writeInt(extra == null ? 1 : 0);
 		if (extra != null)
@@ -106,7 +95,6 @@ public class PUsage implements Parcelable {
 			out.writeString(value);
 
 		out.writeLong(time);
-		out.writeInt(debug ? 1 : 0);
 	}
 
 	public void readFromParcel(Parcel in) {
@@ -114,11 +102,9 @@ public class PUsage implements Parcelable {
 		restrictionName = (in.readInt() > 0 ? null : in.readString());
 		methodName = (in.readInt() > 0 ? null : in.readString());
 		restricted = (in.readInt() > 0 ? true : false);
-		asked = (in.readInt() > 0 ? true : false);
 		extra = (in.readInt() > 0 ? null : in.readString());
 		value = (in.readInt() > 0 ? null : in.readString());
 		time = in.readLong();
-		debug = (in.readInt() > 0 ? true : false);
 	}
 
 	@Override
@@ -130,6 +116,6 @@ public class PUsage implements Parcelable {
 	@SuppressLint("DefaultLocale")
 	public String toString() {
 		return String.format("%d/%s(%s;%s) %s=%srestricted%s", uid, methodName, extra, value, restrictionName,
-				(restricted ? "" : "!"), (asked ? "" : "?"));
+				(restricted ? "" : "!"));
 	}
 }
