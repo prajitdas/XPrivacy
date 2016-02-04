@@ -714,8 +714,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 								//TODO Prajit's code
 								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
 								SQLiteDatabase prajitDB = dbHelper.getWritableDatabase();
-								
-								if (dbUsage == null)
+								Log.v(PKDConstants.getDebugTag(), "At this point I should go to PrajitDBHelper.onCreate()");								
+
+								if (dbUsage == null || prajitDB == null)
 									return;
 
 								// Parameter
@@ -773,8 +774,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 											values.put("value", restriction.value);
 									//TODO Prajit's code
 		//								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
-										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, 
-												SQLiteDatabase.CONFLICT_REPLACE);
+										prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);
+//										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, 
+//												SQLiteDatabase.CONFLICT_REPLACE);
 		//								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 										dbUsage.setTransactionSuccessful();
 									} finally {

@@ -64,31 +64,12 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 			+ COL_SETTINGS_TAB_VALUE + " TEXT,"
 			+ COL_SETTINGS_TAB_TYPE + " TEXT);";
 
-	private Context context;
-
 	/**
 	 * Database creation constructor
 	 * @param context
 	 */
 	public PrajitDBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		this.setContext(context); 
-	}
-	
-	public String getDatabaseName() {
-		return DATABASE_NAME;
-	}
-
-	public Context getContext() {
-		return context;
-	}
-
-	public void setContext(Context context) {
-		this.context = context;
-	}
-	
-	public static int getDatabaseVersion() {
-		return DATABASE_VERSION;
 	}
 	
 	/**
