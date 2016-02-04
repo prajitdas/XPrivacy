@@ -5,27 +5,31 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class PUsage implements Parcelable {
-	public int uid;
-	public String restrictionName;
-	public String methodName;
-	public boolean restricted;
-	public String extra;
-	public String value;
-	public long time;
+	public static final Parcelable.Creator<PUsage> CREATOR = new Parcelable.Creator<PUsage>() {
+		public PUsage createFromParcel(Parcel in) {
+			return new PUsage(in);
+		}
 
-	// The extra is never needed in the result
+		public PUsage[] newArray(int size) {
+			return new PUsage[size];
+		}
+	};
+
+	private int uid;
+
+	private String restrictionName;
+
+	private String methodName;
+
+	private boolean restricted;
+
+	private String extra;
+
+	private String value;
+
+	private long time;
 
 	public PUsage() {
-	}
-
-	public PUsage(PUsage other) {
-		uid = other.uid;
-		restrictionName = other.restrictionName;
-		methodName = other.methodName;
-		restricted = other.restricted;
-		extra = null;
-		value = other.value;
-		time = other.time;
 	}
 
 	public PUsage(int _uid, String category, String method) {
@@ -58,18 +62,92 @@ public class PUsage implements Parcelable {
 		time = 0;
 	}
 
-	public static final Parcelable.Creator<PUsage> CREATOR = new Parcelable.Creator<PUsage>() {
-		public PUsage createFromParcel(Parcel in) {
-			return new PUsage(in);
-		}
-
-		public PUsage[] newArray(int size) {
-			return new PUsage[size];
-		}
-	};
-
 	private PUsage(Parcel in) {
 		readFromParcel(in);
+	}
+
+	public PUsage(PUsage other) {
+		uid = other.uid;
+		restrictionName = other.restrictionName;
+		methodName = other.methodName;
+		restricted = other.restricted;
+		extra = null;
+		value = other.value;
+		time = other.time;
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	public String getExtra() {
+		return extra;
+	}
+	public String getMethodName() {
+		return methodName;
+	}
+	public String getRestrictionName() {
+		return restrictionName;
+	}
+	public long getTime() {
+		return time;
+	}
+	public int getUid() {
+		return uid;
+	}
+	public String getValue() {
+		return value;
+	}
+
+	// The extra is never needed in the result
+
+	public boolean isRestricted() {
+		return restricted;
+	}
+
+	public void readFromParcel(Parcel in) {
+		uid = in.readInt();
+		restrictionName = (in.readInt() > 0 ? null : in.readString());
+		methodName = (in.readInt() > 0 ? null : in.readString());
+		restricted = (in.readInt() > 0 ? true : false);
+		extra = (in.readInt() > 0 ? null : in.readString());
+		value = (in.readInt() > 0 ? null : in.readString());
+		time = in.readLong();
+	}
+
+	public void setExtra(String extra) {
+		this.extra = extra;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+
+	public void setRestricted(boolean restricted) {
+		this.restricted = restricted;
+	}
+
+	public void setRestrictionName(String restrictionName) {
+		this.restrictionName = restrictionName;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public void setUid(int uid) {
+		this.uid = uid;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	@Override
+	@SuppressLint("DefaultLocale")
+	public String toString() {
+		return String.format("%d/%s(%s;%s) %s=%srestricted%s", uid, methodName, extra, value, restrictionName,
+				(restricted ? "" : "!"));
 	}
 
 	@Override
@@ -95,27 +173,5 @@ public class PUsage implements Parcelable {
 			out.writeString(value);
 
 		out.writeLong(time);
-	}
-
-	public void readFromParcel(Parcel in) {
-		uid = in.readInt();
-		restrictionName = (in.readInt() > 0 ? null : in.readString());
-		methodName = (in.readInt() > 0 ? null : in.readString());
-		restricted = (in.readInt() > 0 ? true : false);
-		extra = (in.readInt() > 0 ? null : in.readString());
-		value = (in.readInt() > 0 ? null : in.readString());
-		time = in.readLong();
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	@SuppressLint("DefaultLocale")
-	public String toString() {
-		return String.format("%d/%s(%s;%s) %s=%srestricted%s", uid, methodName, extra, value, restrictionName,
-				(restricted ? "" : "!"));
 	}
 }

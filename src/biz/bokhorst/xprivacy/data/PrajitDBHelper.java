@@ -103,13 +103,13 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 */
 	public int addUsage(SQLiteDatabase db, PUsage aPUsage) {
 		ContentValues values = new ContentValues();
-		values.put(COL_USAGE_TAB_UID, aPUsage.uid);
-		values.put(COL_USAGE_TAB_RESTRICTION, aPUsage.restrictionName);
-		values.put(COL_USAGE_TAB_METHOD, aPUsage.methodName);
-		values.put(COL_USAGE_TAB_EXTRA, aPUsage.extra);
-		values.put(COL_USAGE_TAB_RESTRICTED, aPUsage.restricted);
-		values.put(COL_USAGE_TAB_TIME, aPUsage.time);
-		values.put(COL_USAGE_TAB_VALUE, aPUsage.value);
+		values.put(COL_USAGE_TAB_UID, aPUsage.getUid());
+		values.put(COL_USAGE_TAB_RESTRICTION, aPUsage.getRestrictionName());
+		values.put(COL_USAGE_TAB_METHOD, aPUsage.getMethodName());
+		values.put(COL_USAGE_TAB_EXTRA, aPUsage.getExtra());
+		values.put(COL_USAGE_TAB_RESTRICTED, aPUsage.isRestricted());
+		values.put(COL_USAGE_TAB_TIME, aPUsage.getTime());
+		values.put(COL_USAGE_TAB_VALUE, aPUsage.getValue());
 		try{
 			db.insert(USAGE_TABLE_NAME, null, values);
 		} catch (SQLException e) {
@@ -124,156 +124,9 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param db
 	 * @param anAppInfo
 	 */
-	public void deleteUsage(SQLiteDatabase db, AppInfo anAppInfo) {
-		db.delete(APPLICATION_TABLE_NAME, APPID + " = ?",
-				new String[] { String.valueOf(anAppInfo.getId()) });
-	}
-
-	/**
-	 * method to delete a row from a table based on the identifier
-	 * @param db
-	 * @param aPolicyRule
-	 */
-	public void deletePolicy(SQLiteDatabase db, PolicyInfo aPolicyRule) {
-		db.delete(POLICY_TABLE_NAME, POLID + " = ?",
-				new String[] { String.valueOf(aPolicyRule.getId()) });
-	}
-
-	/**
-	 * method to delete a row from a table based on the identifier
-	 * @param db
-	 * @param aProvider
-	 */
-	public void deleteProvider(SQLiteDatabase db, ProvInfo aProvider) {
-		db.delete(PROVIDER_TABLE_NAME, PROVID + " = ?",
-				new String[] { String.valueOf(aProvider.getId()) });
-	}
-
-	/**
-	 * method to delete a row from a table based on the identifier
-	 * @param db
-	 * @param aService
-	 */
-	public void deleteProvider(SQLiteDatabase db, ServInfo aService) {
-		db.delete(SERVICE_TABLE_NAME, SERVID + " = ?",
-				new String[] { String.valueOf(aService.getId()) });
-	}
-
-	/**
-	 * Finds a policy based on the application and the provider being accessed
-	 * @param db
-	 * @param appPack
-	 * @param provAuth
-	 * @return
-	 */
-	public PolicyInfo findPolicyByAppProv(SQLiteDatabase db, String appPack, String provAuth) {
-		// Select Policy Query
-		String selectQuery = "SELECT "+
-					POLICY_TABLE_NAME + "." + POLID + "," +
-					APPLICATION_TABLE_NAME + "." + APPID + "," +
-					APPLICATION_TABLE_NAME + "." + APPLABEL + "," +
-					PROVIDER_TABLE_NAME + "." + PROVID + "," +
-					PROVIDER_TABLE_NAME + "." + PROVLABEL + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTLOC + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTACT + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTTIME + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTID + "," +
-					POLICY_TABLE_NAME + "." + POLICY + "," +
-					POLICY_TABLE_NAME + "." + POLACCLVL + 
-					" FROM " + 
-					POLICY_TABLE_NAME +
-					" LEFT JOIN " + APPLICATION_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLAPPID + 
-					" = " +  APPLICATION_TABLE_NAME + "." + APPID +
-					" LEFT JOIN " + PROVIDER_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLPROVID + 
-					" = " +  PROVIDER_TABLE_NAME + "." + PROVID + 
-					" WHERE "  +  
-					APPLICATION_TABLE_NAME + "." + APPPACK + " = '" + appPack + "' AND " +
-					PROVIDER_TABLE_NAME + "." + PROVAUTH + " = '" + provAuth + 
-					"';";
-
-		PolicyInfo policyInfo = new PolicyInfo();
-		
-		try{
-			Cursor cursor = db.rawQuery(selectQuery, null);
-			if (cursor.moveToFirst()) {
-				policyInfo.setId(Integer.parseInt(cursor.getString(0)));
-				policyInfo.setAppId(Integer.parseInt(cursor.getString(1)));
-				policyInfo.setAppLabel(cursor.getString(2));
-				policyInfo.setProvId(Integer.parseInt(cursor.getString(3)));
-				policyInfo.setProvLabel(cursor.getString(4));
-				
-				UserContext contextCondition = new UserContext(cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8));
-				policyInfo.setUserContext(contextCondition);
-				
-				if(Integer.parseInt(cursor.getString(9)) == 1)
-					policyInfo.setRule(true);
-				else
-					policyInfo.setRule(false);
-				policyInfo.setAccessLevel(Integer.parseInt(cursor.getString(10)));
-			}
-		} catch(SQLException e) {
-            throw new SQLException("Could not find " + e);
-		}
-		return policyInfo;
-	}
-
-	/**
-	 * Finds a policy based on the policy id
-	 * @param db
-	 * @param id
-	 * @return
-	 */
-	public PolicyInfo findPolicyByID(SQLiteDatabase db, int id) {
-		// Select Policy Query
-		String selectQuery = "SELECT "+
-					POLICY_TABLE_NAME + "." + POLID + "," +
-					APPLICATION_TABLE_NAME + "." + APPID + "," +
-					APPLICATION_TABLE_NAME + "." + APPLABEL + "," +
-					PROVIDER_TABLE_NAME + "." + PROVID + "," +
-					PROVIDER_TABLE_NAME + "." + PROVLABEL + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTLOC + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTACT + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTTIME + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTID + "," +
-					POLICY_TABLE_NAME + "." + POLICY + "," +
-					POLICY_TABLE_NAME + "." + POLACCLVL + 
-					" FROM " + 
-					POLICY_TABLE_NAME +
-					" LEFT JOIN " + APPLICATION_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLAPPID + 
-					" = " +  APPLICATION_TABLE_NAME + "." + APPID +
-					" LEFT JOIN " + PROVIDER_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLPROVID + 
-					" = " +  PROVIDER_TABLE_NAME + "." + PROVID + 
-					" WHERE "  +  
-					POLICY_TABLE_NAME + "." + POLID + " = " + id + ";";
-
-		PolicyInfo policyInfo = new PolicyInfo();
-		
-		try{
-			Cursor cursor = db.rawQuery(selectQuery, null);
-			if (cursor.moveToFirst()) {
-				policyInfo.setId(Integer.parseInt(cursor.getString(0)));
-				policyInfo.setAppId(Integer.parseInt(cursor.getString(1)));
-				policyInfo.setAppLabel(cursor.getString(2));
-				policyInfo.setProvId(Integer.parseInt(cursor.getString(3)));
-				policyInfo.setProvLabel(cursor.getString(4));
-				
-				UserContext contextCondition = new UserContext(cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8));
-				policyInfo.setUserContext(contextCondition);
-				
-				if(Integer.parseInt(cursor.getString(9)) == 1)
-					policyInfo.setRule(true);
-				else
-					policyInfo.setRule(false);
-				policyInfo.setAccessLevel(Integer.parseInt(cursor.getString(10)));
-			}
-		} catch(SQLException e) {
-	        throw new SQLException("Could not find " + e);
-		}
-		return policyInfo;
+	public void deleteUsage(SQLiteDatabase db, PUsage aPUsage) {
+		db.delete(USAGE_TABLE_NAME, COL_USAGE_TAB_UID + " = ?",
+				new String[] { String.valueOf(aPUsage.getUid()) });
 	}
 
 	/**
@@ -281,180 +134,61 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param db
 	 * @return
 	 */
-	public ArrayList<PolicyInfo> findAllPolicies(SQLiteDatabase db) {
-		ArrayList<PolicyInfo> policyInfos = new ArrayList<PolicyInfo>();
+	public ArrayList<PUsage> findAllUsages(SQLiteDatabase db) {
+		ArrayList<PUsage> pUsages = new ArrayList<PUsage>();
 		// Select All Query
-		String selectQuery = "SELECT "+
-					POLICY_TABLE_NAME + "." + POLID + "," +
-					APPLICATION_TABLE_NAME + "." + APPID + "," +
-					APPLICATION_TABLE_NAME + "." + APPLABEL + "," +
-					PROVIDER_TABLE_NAME + "." + PROVID + "," +
-					PROVIDER_TABLE_NAME + "." + PROVLABEL + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTLOC + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTACT + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTTIME + "," +
-					POLICY_TABLE_NAME + "." + CONTEXTID + "," +
-					POLICY_TABLE_NAME + "." + POLICY + "," +
-					POLICY_TABLE_NAME + "." + POLACCLVL + 
-					" FROM " + 
-					POLICY_TABLE_NAME +
-					" LEFT JOIN " + APPLICATION_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLAPPID + 
-					" = " +  APPLICATION_TABLE_NAME + "." + APPID +
-					" LEFT JOIN " + PROVIDER_TABLE_NAME + 
-					" ON " + POLICY_TABLE_NAME + "." + POLPROVID + 
-					" = " +  PROVIDER_TABLE_NAME + "." + PROVID + ";";
-
+		String selectQuery = "SELECT * FROM " + USAGE_TABLE_NAME + ";";
 		try{
 			Cursor cursor = db.rawQuery(selectQuery, null);
 
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
-					PolicyInfo policyInfo = new PolicyInfo();
-					policyInfo.setId(Integer.parseInt(cursor.getString(0)));
-					policyInfo.setAppId(Integer.parseInt(cursor.getString(1)));
-					policyInfo.setAppLabel(cursor.getString(2));
-					policyInfo.setProvId(Integer.parseInt(cursor.getString(3)));
-					policyInfo.setProvLabel(cursor.getString(4));
+					PUsage pUsage = new PUsage();
+					pUsage.setUid(Integer.parseInt(cursor.getString(0)));
+					pUsage.setRestrictionName(cursor.getString(1));
+					pUsage.setMethodName(cursor.getString(2));
+					pUsage.setExtra(cursor.getString(3));
+					pUsage.setRestricted(Boolean.parseBoolean(cursor.getString(4)));
+					pUsage.setTime(Long.parseLong(cursor.getString(5)));
+					pUsage.setValue(cursor.getString(6));
 					
-					UserContext contextCondition = new UserContext(cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8));
-					policyInfo.setUserContext(contextCondition);
-					
-					if(Integer.parseInt(cursor.getString(9)) == 1)
-						policyInfo.setRule(true);
-					else
-						policyInfo.setRule(false);
-					policyInfo.setAccessLevel(Integer.parseInt(cursor.getString(10)));
-
 					// Adding policies to list
-					policyInfos.add(policyInfo);
+					pUsages.add(pUsage);
 				} while (cursor.moveToNext());
 			}
 		} catch(SQLException e) {
 	        throw new SQLException("Could not find " + e);
 		}
 		// return policy rules list
-		return policyInfos;
+		return pUsages;
 	}
 	
-	/**
-	 * Getting all providers
-	 * @param db
-	 * @return
-	 */
-	public ArrayList<ProvInfo> findAllProviders(SQLiteDatabase db) {
-		ArrayList<ProvInfo> provInfos = new ArrayList<ProvInfo>();
-		// Select All Query
-		String selectQuery = "SELECT * FROM " + PROVIDER_TABLE_NAME + ";";
-
-		try{
-			Cursor cursor = db.rawQuery(selectQuery, null);
-	
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					ProvInfo provInfo = new ProvInfo(
-							Integer.parseInt(cursor.getString(0)),
-							cursor.getString(1),
-							cursor.getString(2),
-							cursor.getString(3),
-							cursor.getString(4),
-							cursor.getString(5));
-					Log.v(COMMANDApplication.getDebugTag(), provInfo.toString());
-					// Adding providers to list
-					provInfos.add(provInfo);
-				} while (cursor.moveToNext());
-			}
-		} catch(SQLException e) {
-	        throw new SQLException("Could not find " + e);
-		}
-		// return policy rules list
-		return provInfos;
-	}
-
-	/**
-	 * Getting all services
-	 * @param db
-	 * @return
-	 */
-	public ArrayList<ServInfo> findAllServices(SQLiteDatabase db) {
-		ArrayList<ServInfo> services = new ArrayList<ServInfo>();
-		// Select All Query
-		String selectQuery = "SELECT * FROM " + SERVICE_TABLE_NAME + ";";
-
-		try{
-			Cursor cursor = db.rawQuery(selectQuery, null);
-	
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					ServInfo service = new ServInfo(
-							Integer.parseInt(cursor.getString(0)),
-							cursor.getString(1),
-							cursor.getString(2),
-							((Integer.parseInt(cursor.getString(3)) == 1) ? true : false),
-							((Integer.parseInt(cursor.getString(4)) == 1) ? true : false),
-							cursor.getString(5),
-							cursor.getString(6));
-					Log.v(COMMANDApplication.getDebugTag(), service.toString());
-					// Adding providers to list
-					services.add(service);
-				} while (cursor.moveToNext());
-			}
-		} catch(SQLException e) {
-	        throw new SQLException("Could not find " + e);
-		}
-		// return policy rules list
-		return services;
-	}
-	
-	/**
-	 * Getting all applications
-	 * @param db
-	 * @return
-	 */
-	public ArrayList<AppInfo> findAllApplications(SQLiteDatabase db) {
-		ArrayList<AppInfo> apps = new ArrayList<AppInfo>();
-		// Select All Query
-		String selectQuery = "SELECT * FROM " + APPLICATION_TABLE_NAME + ";";
-
-		try{
-			Cursor cursor = db.rawQuery(selectQuery, null);
-	
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					AppInfo app = new AppInfo(
-							Integer.parseInt(cursor.getString(0)),
-							cursor.getString(1),
-							cursor.getString(2),
-							cursor.getString(3));
-					// Adding applications to list
-					apps.add(app);
-				} while (cursor.moveToNext());
-			}
-		} catch(SQLException e) {
-	        throw new SQLException("Could not find " + e);
-		}
-		// return applications list
-		return apps;
-	}
-
 	/**
 	 * table creation happens in onCreate this method also loads the default policies
 	 */
 	@Override
-	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(CREATE_APPLICATION_TABLE);
-		db.execSQL(CREATE_APPLICATIONS_INDEX);
-		db.execSQL(CREATE_PROVIDER_TABLE);
-		db.execSQL(CREATE_PROVIDERS_INDEX);
-		db.execSQL(CREATE_SERVICE_TABLE);
-		db.execSQL(CREATE_SERVICES_INDEX);
-		db.execSQL(CREATE_POLICY_TABLE);
-		//The following method loads the database with the default data on creation of the database
-		loadDefaultPoliciesIntoDB(db);
+	public void onCreate(SQLiteDatabase db) { //On create for database
+		db.execSQL(CREATE_RESTRICTIONS_TABLE);
+		db.execSQL(CREATE_USAGE_TABLE);
+		db.execSQL(CREATE_SETTINGS_TABLE);
+	}
+	
+	/**
+	 * method to update single application
+	 * @param appName
+	 */
+	public int updateUsage(SQLiteDatabase db, PUsage aPUsage) {
+		ContentValues values = new ContentValues();
+		values.put(COL_USAGE_TAB_UID, aPUsage.getUid());
+		values.put(COL_USAGE_TAB_RESTRICTION, aPUsage.getRestrictionName());
+		values.put(COL_USAGE_TAB_METHOD, aPUsage.getMethodName());
+		values.put(COL_USAGE_TAB_EXTRA, aPUsage.getExtra());
+		values.put(COL_USAGE_TAB_RESTRICTED, aPUsage.isRestricted());
+		values.put(COL_USAGE_TAB_TIME, aPUsage.getTime());
+		values.put(COL_USAGE_TAB_VALUE, aPUsage.getValue());
+		return db.update(USAGE_TABLE_NAME, values, COL_USAGE_TAB_UID + " = ?", 
+				new String[] { String.valueOf(aPUsage.getUid()) });
 	}
 
 	/**
@@ -467,7 +201,7 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w(PolicyDBHelper.class.getName(), 
+		Log.w(PrajitDBHelper.class.getName(), 
 				"Upgrading database from version " + oldVersion + " to "
 						+ newVersion + ". Old data will be destroyed");
 		dropDBObjects(db);
@@ -478,96 +212,9 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param db
 	 */
 	private void dropDBObjects(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE IF EXISTS " +  APPLICATION_TABLE_NAME);
-		db.execSQL("DROP INDEX IF EXISTS " + APPLICATION_TABLE_INDEX);
-		db.execSQL("DROP TABLE IF EXISTS " +  PROVIDER_TABLE_NAME);
-		db.execSQL("DROP INDEX IF EXISTS " + PROVIDER_TABLE_INDEX);
-		db.execSQL("DROP TABLE IF EXISTS " + SERVICE_TABLE_NAME);
-		db.execSQL("DROP INDEX IF EXISTS " + SERVICE_TABLE_INDEX);
-		db.execSQL("DROP TABLE IF EXISTS " +  POLICY_TABLE_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " +  CREATE_RESTRICTIONS_TABLE);
+		db.execSQL("DROP INDEX IF EXISTS " + CREATE_USAGE_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " +  CREATE_SETTINGS_TABLE);
 		onCreate(db);
 	}
-	/**
-	 * method to update single application
-	 * @param appName
-	 */
-	public int updateApplication(SQLiteDatabase db, AppInfo anAppInfo) {
-		ContentValues values = new ContentValues();
-		values.put(APPLABEL, anAppInfo.getLabel());
-		values.put(APPPACK, anAppInfo.getPackageName());
-		values.put(APPPERM, anAppInfo.getPermissions());
-		return db.update(APPLICATION_TABLE_NAME, values, APPID + " = ?", 
-				new String[] { String.valueOf(anAppInfo.getId()) });
-	}
-	
-	/**
-	 * method to update single policy
-	 * @param aPolicyRule update the policy value
-	 */
-	public int updatePolicyRule(SQLiteDatabase db, PolicyInfo aPolicyRule) {
-		ContentValues values = new ContentValues();
-		values.put(POLAPPID, aPolicyRule.getAppId());
-		values.put(POLPROVID, aPolicyRule.getProvId());
-		values.put(CONTEXTLOC, aPolicyRule.getUserContext().getLocation());
-		values.put(CONTEXTACT, aPolicyRule.getUserContext().getActivity());
-		values.put(CONTEXTTIME, aPolicyRule.getUserContext().getTime());
-		values.put(CONTEXTID, aPolicyRule.getUserContext().getIdentity());
-		if(aPolicyRule.isRule())
-			values.put(POLICY, 1);
-		else
-			values.put(POLICY, 0);
-		values.put(POLACCLVL, aPolicyRule.getAccessLevel());
-		return db.update(POLICY_TABLE_NAME, values, POLID + " = ?", 
-				new String[] { String.valueOf(aPolicyRule.getId()) });
-	}
-
-	/**
-	 * method to update single provider
-	 * @param db
-	 * @param aProvider
-	 * @return
-	 */
-	public int updateProvider(SQLiteDatabase db, ProvInfo aProvider) {
-		ContentValues values = new ContentValues();
-		values.put(PROVLABEL, aProvider.getLabel());
-		values.put(PROVPRO, aProvider.getProviderName());
-		values.put(PROVAUTH, aProvider.getAuthority());
-		values.put(PROVREADPERM, aProvider.getReadPermission());
-		values.put(PROVWRITEPERM, aProvider.getWritePermission());
-		return db.update(PROVIDER_TABLE_NAME, values, PROVID + " = ?", 
-				new String[] { String.valueOf(aProvider.getId()) });
-	}
-
-	/**
-	 * method to update single service
-	 * @param db
-	 * @param aProvider
-	 * @return
-	 */
-	public int updateService(SQLiteDatabase db, ServInfo aService) {
-		ContentValues values = new ContentValues();
-		values.put(SERVLABEL, aService.getServiceLabel());
-		values.put(SERVNAME, aService.getServiceName());
-		values.put(SERVENABLED, aService.isEnabled());
-		values.put(SERVEXPORTED, aService.isExported());
-		values.put(SERVPROCESS, aService.getProcess());
-		values.put(SERVPERM, aService.getPermission());
-		return db.update(SERVICE_TABLE_NAME, values, SERVID + " = ?", 
-				new String[] { String.valueOf(aService.getId()) });
-	}
-	
-	@Override
-	public void onCreate(SQLiteDatabase db) { //On create for database
-		db.execSQL(CREATE_RESTRICTIONS_TABLE);
-		db.execSQL(CREATE_USAGE_TABLE);
-		db.execSQL(CREATE_SETTINGS_TABLE);
-	}
-	
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + RESTRICTIONS_TABLE_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + USAGE_TABLE_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + SETTINGS_TABLE_NAME);
-		onCreate(db);
-	}		
 }

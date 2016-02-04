@@ -756,10 +756,33 @@ public class PrivacyService extends IPrivacyService.Stub {
 									mLockUsage.writeLock().unlock();
 								}
 								
-								//TODO Prajit's code
-//								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
-								prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);//, SQLiteDatabase.CONFLICT_REPLACE);
-//								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
+								mLockUsage.writeLock().lock();
+								try {
+									dbUsage.beginTransaction();
+									try {
+										values = new ContentValues();
+										values.put("uid", restriction.uid);
+										values.put("restriction", restriction.restrictionName);
+										values.put("method", restriction.methodName);
+										values.put("restricted", mresult.restricted);
+										values.put("time", new Date().getTime());
+										values.put("extra", extra);
+										if (restriction.value == null)
+											values.putNull("value");
+										else
+											values.put("value", restriction.value);
+									//TODO Prajit's code
+		//								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
+										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, 
+												SQLiteDatabase.CONFLICT_REPLACE);
+		//								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
+										dbUsage.setTransactionSuccessful();
+									} finally {
+										dbUsage.endTransaction();
+									}
+								} finally {
+									mLockUsage.writeLock().unlock();
+								}
 							}
 						} catch (SQLiteException ex) {
 							Util.log(null, Log.WARN, ex.toString());
