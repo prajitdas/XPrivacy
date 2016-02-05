@@ -231,7 +231,11 @@ public class PrivacyService extends IPrivacyService.Stub {
 				Class<?> cServiceManager = Class.forName("android.os.ServiceManager");
 				Method mGetService = cServiceManager.getDeclaredMethod("getService", String.class);
 				mClient = IPrivacyService.Stub.asInterface((IBinder) mGetService.invoke(null, getServiceName()));
-				Log.v(PKDConstants.getDebugTag(), getServiceName());
+				/**
+				 * TODO Prajit: I am trying to get the service name here to verify, if it is running or not.
+				 * Something I tried becasue the equivalent app EBXPrivacy was not gettting the service up.
+				 * Log.v(PKDConstants.getDebugTag(), getServiceName());
+				 */
 			} catch (Throwable ex) {
 				Util.bug(null, ex);
 			}
@@ -711,12 +715,13 @@ public class PrivacyService extends IPrivacyService.Stub {
 						try {
 							if (XActivityManagerService.canWriteUsageData()) {
 								SQLiteDatabase dbUsage = getDbUsage();
-								//TODO Prajit's code
+//								TODO Prajit's code
 								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
 								SQLiteDatabase prajitDB = dbHelper.getWritableDatabase();
 								Log.v(PKDConstants.getDebugTag(), "At this point I should go to PrajitDBHelper.onCreate()");								
+								//TODO Prajit's code
 
-								if (dbUsage == null || prajitDB == null)
+								if (dbUsage == null)// || prajitDB == null)
 									return;
 
 								// Parameter
@@ -730,11 +735,14 @@ public class PrivacyService extends IPrivacyService.Stub {
 									if (!getSettingBool(userId, PrivacyManager.cSettingValues, false))
 										restriction.value = null;
 
+								//TODO Prajit's code
 								ContentValues values = null;
+								//TODO Prajit's code
 								mLockUsage.writeLock().lock();
 								try {
 									dbUsage.beginTransaction();
 									try {
+//										ContentValues values = new ContentValues();
 										values = new ContentValues();
 										values.put("uid", restriction.uid);
 										values.put("restriction", restriction.restrictionName);
@@ -757,6 +765,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 									mLockUsage.writeLock().unlock();
 								}
 								
+								//TODO Prajit's code
 								mLockUsage.writeLock().lock();
 								try {
 									dbUsage.beginTransaction();
@@ -772,12 +781,10 @@ public class PrivacyService extends IPrivacyService.Stub {
 											values.putNull("value");
 										else
 											values.put("value", restriction.value);
-									//TODO Prajit's code
-		//								Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
+										Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
 										prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);
-//										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, 
-//												SQLiteDatabase.CONFLICT_REPLACE);
-		//								Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
+//										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+										Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 										dbUsage.setTransactionSuccessful();
 									} finally {
 										dbUsage.endTransaction();
@@ -785,6 +792,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 								} finally {
 									mLockUsage.writeLock().unlock();
 								}
+								//TODO Prajit's code
 							}
 						} catch (SQLiteException ex) {
 							Util.log(null, Log.WARN, ex.toString());
@@ -924,7 +932,10 @@ public class PrivacyService extends IPrivacyService.Stub {
 		try {
 			int uid = -1;
 			for (PRestriction restriction : listRestriction) {
-				Log.v(PKDConstants.getDebugTag(), Integer.toString(restriction.uid));
+				/**
+				 * TODO Prajit: This was causing a fatal nullpointer exception
+				 * Log.v(PKDConstants.getDebugTag(), Integer.toString(restriction.uid));
+				 */
 				if (uid < 0)
 					uid = restriction.uid;
 				else if (uid != restriction.uid)

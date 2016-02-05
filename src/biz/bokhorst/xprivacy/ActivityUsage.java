@@ -75,7 +75,10 @@ public class ActivityUsage extends ActivityBase {
 		Bundle extras = getIntent().getExtras();
 		mUid = (extras == null ? 0 : extras.getInt(cUid, 0));
 		mRestrictionName = (extras == null ? null : extras.getString(cRestriction));
-		Log.v(PKDConstants.getDebugTag(), mRestrictionName);
+		/**
+		 * TODO Prajit: This was causing a fatal nullpointer exception
+		 * Log.v(PKDConstants.getDebugTag(), mRestrictionName);
+		 */
 		
 		// Show title
 		updateTitle();

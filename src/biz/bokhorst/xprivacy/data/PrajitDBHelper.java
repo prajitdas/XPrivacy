@@ -153,6 +153,7 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_RESTRICTIONS_TABLE);
 		db.execSQL(CREATE_USAGE_TABLE);
 		db.execSQL(CREATE_SETTINGS_TABLE);
+		Log.v(PKDConstants.getDebugTag(), "I came to PrajitDBHelper.onCreate()");								
 	}
 	
 	/**
