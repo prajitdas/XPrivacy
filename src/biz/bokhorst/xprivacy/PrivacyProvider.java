@@ -523,8 +523,13 @@ public class PrivacyProvider extends ContentProvider {
 	// Helper methods
 
 	private void enforcePermission() throws SecurityException {
-		if (Binder.getCallingUid() != Process.myUid())
-			throw new SecurityException();
+		return;
+		/**
+		 * TODO Prajit
+		 * Removing security excpetions
+		 * if (Binder.getCallingUid() != Process.myUid())
+		 * throw new SecurityException();
+		 */
 	}
 
 	private static String getPrefFileName(String preference) {
