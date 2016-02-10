@@ -96,6 +96,7 @@ public class PrivacyProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		Log.v(PKDConstants.getDebugTag()+"database", uri.toString());
 		if (sUriMatcher.match(uri) == TYPE_RESTRICTION && selectionArgs != null && selectionArgs.length >= 2) {
 			// Query restrictions
 			String restrictionName = selection;
