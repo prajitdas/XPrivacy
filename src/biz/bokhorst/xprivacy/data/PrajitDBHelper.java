@@ -45,31 +45,14 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	public static final String USAGE_TABLE_NAME = "usage";
 	public static final String SETTINGS_TABLE_NAME = "settings";
 
-	public static final String CREATE_RESTRICTIONS_TABLE = "CREATE TABLE restriction ("
-			+ COL_RESTRCITION_TAB_UID +" INTEGER NOT NULL,"
-			+ COL_RESTRCITION_TAB_RESTRICTION + " TEXT NOT NULL,"
-			+ COL_RESTRCITION_TAB_METHOD + " TEXT NOT NULL,"
-			+ COL_RESTRCITION_TAB_RESTRICTED + " INTEGER NOT NULL);"; 
-	public static final String CREATE_USAGE_TABLE = "CREATE TABLE usage ("
-			+ COL_USAGE_TAB_UID + " INTEGER NOT NULL,"
-			+ COL_USAGE_TAB_RESTRICTION + " TEXT NOT NULL,"
-			+ COL_USAGE_TAB_METHOD + " TEXT NOT NULL,"
-			+ COL_USAGE_TAB_EXTRA + " TEXT NOT NULL,"
-			+ COL_USAGE_TAB_RESTRICTED + " INTEGER NOT NULL,"
-			+ COL_USAGE_TAB_TIME + " INTEGER NOT NULL,"
-			+ COL_USAGE_TAB_VALUE + " TEXT);";
-	public static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ("
-			+ COL_SETTINGS_TAB_UID + " INTEGER NOT NULL,"
-			+ COL_SETTINGS_TAB_NAME + " TEXT NOT NULL,"
-			+ COL_SETTINGS_TAB_VALUE + " TEXT,"
-			+ COL_SETTINGS_TAB_TYPE + " TEXT);";
-
 	/**
 	 * Database creation constructor
 	 * @param context
 	 */
 	public PrajitDBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+//		File dbPrajitFile = getDbPrajitFile();
+//		SQLiteDatabase.openOrCreateDatabase(dbPrajitFile, null);
 	}
 	
 	/**
@@ -150,9 +133,12 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) { //On create for database
-		db.execSQL(CREATE_RESTRICTIONS_TABLE);
-		db.execSQL(CREATE_USAGE_TABLE);
-		db.execSQL(CREATE_SETTINGS_TABLE);
+		db.execSQL(PKDConstants.CREATE_RESTRICTIONS_TABLE);
+		db.execSQL(PKDConstants.CREATE_USAGE_TABLE);
+		db.execSQL(PKDConstants.CREATE_SETTINGS_TABLE);
+		db.execSQL(PKDConstants.CREATE_INDEX_RESTRICTIONS_TABLE);
+		db.execSQL(PKDConstants.CREATE_INDEX_USAGE_TABLE);
+		db.execSQL(PKDConstants.CREATE_INDEX_SETTINGS_TABLE);
 		Log.v(PKDConstants.getDebugTag(), "I came to PrajitDBHelper.onCreate()");								
 	}
 	
@@ -194,9 +180,12 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	 * @param db
 	 */
 	private void dropDBObjects(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE IF EXISTS " +  CREATE_RESTRICTIONS_TABLE);
-		db.execSQL("DROP INDEX IF EXISTS " + CREATE_USAGE_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS " +  CREATE_SETTINGS_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + PKDConstants.CREATE_RESTRICTIONS_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + PKDConstants.CREATE_USAGE_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + PKDConstants.CREATE_SETTINGS_TABLE);
+		db.execSQL("DROP INDEX IF EXISTS " + PKDConstants.CREATE_INDEX_RESTRICTIONS_TABLE);
+		db.execSQL("DROP INDEX IF EXISTS " + PKDConstants.CREATE_INDEX_USAGE_TABLE);
+		db.execSQL("DROP INDEX IF EXISTS " + PKDConstants.CREATE_INDEX_SETTINGS_TABLE);
 		onCreate(db);
 	}
 }

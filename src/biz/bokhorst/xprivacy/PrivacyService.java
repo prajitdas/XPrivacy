@@ -92,6 +92,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 	private boolean mNotified = false;
 	private SQLiteDatabase mDb = null;
 	private SQLiteDatabase mDbUsage = null;
+	private SQLiteDatabase mDbPrajit = null;
 	private SQLiteStatement stmtGetRestriction = null;
 	private SQLiteStatement stmtGetSetting = null;
 	private SQLiteStatement stmtGetUsageRestriction = null;
@@ -736,24 +737,41 @@ public class PrivacyService extends IPrivacyService.Stub {
 										restriction.value = null;
 
 								//TODO Prajit's code
-								ContentValues values = null;
+								ContentValues values = new ContentValues();
+								values.put("uid", restriction.uid);
+								values.put("restriction", restriction.restrictionName);
+								values.put("method", restriction.methodName);
+								values.put("restricted", mresult.restricted);
+								values.put("time", new Date().getTime());
+								values.put("extra", extra);
+								if (restriction.value == null)
+									values.putNull("value");
+								else
+									values.put("value", restriction.value);
+								
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("uid"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("restriction"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("method"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("restricted"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("time"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("extra"));
+								Log.v(PKDConstants.getDebugTag(), values.getAsString("value"));
 								//TODO Prajit's code
 								mLockUsage.writeLock().lock();
 								try {
 									dbUsage.beginTransaction();
 									try {
 //										ContentValues values = new ContentValues();
-										values = new ContentValues();
-										values.put("uid", restriction.uid);
-										values.put("restriction", restriction.restrictionName);
-										values.put("method", restriction.methodName);
-										values.put("restricted", mresult.restricted);
-										values.put("time", new Date().getTime());
-										values.put("extra", extra);
-										if (restriction.value == null)
-											values.putNull("value");
-										else
-											values.put("value", restriction.value);
+//										values.put("uid", restriction.uid);
+//										values.put("restriction", restriction.restrictionName);
+//										values.put("method", restriction.methodName);
+//										values.put("restricted", mresult.restricted);
+//										values.put("time", new Date().getTime());
+//										values.put("extra", extra);
+//										if (restriction.value == null)
+//											values.putNull("value");
+//										else
+//											values.put("value", restriction.value);
 										dbUsage.insertWithOnConflict(cTableUsage, null, values,
 												SQLiteDatabase.CONFLICT_REPLACE);
 										
@@ -770,20 +788,20 @@ public class PrivacyService extends IPrivacyService.Stub {
 								try {
 									dbUsage.beginTransaction();
 									try {
-										values = new ContentValues();
-										values.put("uid", restriction.uid);
-										values.put("restriction", restriction.restrictionName);
-										values.put("method", restriction.methodName);
-										values.put("restricted", mresult.restricted);
-										values.put("time", new Date().getTime());
-										values.put("extra", extra);
-										if (restriction.value == null)
-											values.putNull("value");
-										else
-											values.put("value", restriction.value);
+//										values = new ContentValues();
+//										values.put("uid", restriction.uid);
+//										values.put("restriction", restriction.restrictionName);
+//										values.put("method", restriction.methodName);
+//										values.put("restricted", mresult.restricted);
+//										values.put("time", new Date().getTime());
+//										values.put("extra", extra);
+//										if (restriction.value == null)
+//											values.putNull("value");
+//										else
+//											values.put("value", restriction.value);
 										Log.v(PKDConstants.getDebugTag()+"another", "I came here with uid: "+Integer.toString(restriction.uid));
-										prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);
-//										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+//										prajitDB.insert(PrajitDBHelper.USAGE_TABLE_NAME, null, values);
+										prajitDB.insertWithOnConflict(PrajitDBHelper.USAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 										Log.v(PKDConstants.getDebugTag()+"another", "I inserted something for uid: "+Integer.toString(restriction.uid));
 										dbUsage.setTransactionSuccessful();
 									} finally {
@@ -2936,12 +2954,12 @@ public class PrivacyService extends IPrivacyService.Stub {
 	private SQLiteDatabase getDbPrajit() {
 		synchronized (this) {
 			// Check current reference
-			if (mDbUsage != null && !mDbUsage.isOpen()) {
-				mDbUsage = null;
+			if (mDbPrajit != null && !mDbPrajit.isOpen()) {
+				mDbPrajit = null;
 				Util.log(null, Log.ERROR, "Prajit database not open");
 			}
 
-			if (mDbUsage == null)
+			if (mDbPrajit == null)
 				try {
 					// Create/upgrade database when needed
 					File dbPrajitFile = getDbPrajitFile();
@@ -2969,8 +2987,8 @@ public class PrivacyService extends IPrivacyService.Stub {
 								dbPrajit.execSQL(PKDConstants.CREATE_USAGE_TABLE);
 								dbPrajit.execSQL(PKDConstants.CREATE_SETTINGS_TABLE);
 								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_RESTRICTIONS_TABLE);
-								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_SETTINGS_TABLE);
 								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_USAGE_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_SETTINGS_TABLE);
 								Log.v(PKDConstants.getDebugTag(), "I came to PrajitDBHelper.onCreate()");	
 								dbPrajit.setVersion(1);
 								dbPrajit.setTransactionSuccessful();
@@ -2982,23 +3000,6 @@ public class PrivacyService extends IPrivacyService.Stub {
 						}
 					}
 
-//					if (dbPrajit.needUpgrade(2)) {
-//						Util.log(null, Log.WARN, "Upgrading prajit database from version=" + dbPrajit.getVersion());
-//						mLockUsage.writeLock().lock();
-//						try {
-//							dbPrajit.beginTransaction();
-//							try {
-//								dbUsage.execSQL("ALTER TABLE usage ADD COLUMN value TEXT");
-//								dbUsage.setVersion(2);
-//								dbUsage.setTransactionSuccessful();
-//							} finally {
-//								dbUsage.endTransaction();
-//							}
-//						} finally {
-//							mLockUsage.writeLock().unlock();
-//						}
-//					}
-
 					Util.log(null, Log.WARN, "Changing to asynchronous mode");
 					try {
 						dbPrajit.rawQuery("PRAGMA synchronous=OFF", null);
@@ -3007,13 +3008,13 @@ public class PrivacyService extends IPrivacyService.Stub {
 					}
 
 					Util.log(null, Log.WARN, "Prajit database version=" + dbPrajit.getVersion());
-					mDbUsage = dbPrajit;
+					mDbPrajit = dbPrajit;
 				} catch (Throwable ex) {
-					mDbUsage = null; // retry
+					mDbPrajit = null; // retry
 					Util.bug(null, ex);
 				}
 
-			return mDbUsage;
+			return mDbPrajit;
 		}
 	}
 }
