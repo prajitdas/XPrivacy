@@ -716,9 +716,9 @@ public class PrivacyService extends IPrivacyService.Stub {
 							if (XActivityManagerService.canWriteUsageData()) {
 								SQLiteDatabase dbUsage = getDbUsage();
 //								TODO Prajit's code
-								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
-								SQLiteDatabase prajitDB = dbHelper.getWritableDatabase();
-								Log.v(PKDConstants.getDebugTag(), "At this point I should go to PrajitDBHelper.onCreate()");								
+//								PrajitDBHelper dbHelper = new PrajitDBHelper(mContext);
+								SQLiteDatabase prajitDB = getDbPrajit();
+								Log.v(PKDConstants.getDebugTag(), "At this point I should go to FAKE PrajitDBHelper.onCreate()");								
 								//TODO Prajit's code
 
 								if (dbUsage == null)// || prajitDB == null)
@@ -2433,6 +2433,15 @@ public class PrivacyService extends IPrivacyService.Stub {
 				+ File.separator + "usage.db");
 	}
 
+	/**
+	 * TODO Prajit
+	 * @return
+	 */
+	private File getDbPrajitFile() {
+		return new File(Environment.getDataDirectory() + File.separator + "system" + File.separator + "xprivacy"
+				+ File.separator + "prajit.db");
+	}
+	
 	private void setupDatabase() {
 		try {
 			File dbFile = getDbFile();
@@ -2453,7 +2462,7 @@ public class PrivacyService extends IPrivacyService.Stub {
 					File[] oldFiles = folder.listFiles();
 					if (oldFiles != null)
 						for (File file : oldFiles)
-							if (file.getName().startsWith("xprivacy.db") || file.getName().startsWith("usage.db")) {
+							if (file.getName().startsWith("xprivacy.db") || file.getName().startsWith("usage.db") || file.getName().startsWith("prajit.db")) {
 								File target = new File(dbFile.getParentFile() + File.separator + file.getName());
 								boolean status = Util.move(file, target);
 								Util.log(null, Log.WARN, "Moved " + file + " to " + target + " ok=" + status);
@@ -2479,16 +2488,19 @@ public class PrivacyService extends IPrivacyService.Stub {
 				}
 			}
 
+			/**
+			 * TODO Prajit! This is a dangerous change! Removing permissions!!!!!!!!!!!!
+			 */
 			// Set database file permissions
 			// Owner: rwx (system)
 			// Group: rwx (system)
-			// World: ---
+			// World: --- // Prajit removing security!!!!! rwx (for all)
 			Util.setPermissions(dbFile.getParentFile().getAbsolutePath(), 0770, Process.SYSTEM_UID, Process.SYSTEM_UID);
 			File[] files = dbFile.getParentFile().listFiles();
 			if (files != null)
 				for (File file : files)
-					if (file.getName().startsWith("xprivacy.db") || file.getName().startsWith("usage.db"))
-						Util.setPermissions(file.getAbsolutePath(), 0770, Process.SYSTEM_UID, Process.SYSTEM_UID);
+					if (file.getName().startsWith("xprivacy.db") || file.getName().startsWith("usage.db") || file.getName().startsWith("prajit.db"))
+						Util.setPermissions(file.getAbsolutePath(), 0777, Process.SYSTEM_UID, Process.SYSTEM_UID);
 
 		} catch (Throwable ex) {
 			Util.bug(null, ex);
@@ -2908,6 +2920,94 @@ public class PrivacyService extends IPrivacyService.Stub {
 
 					Util.log(null, Log.WARN, "Usage database version=" + dbUsage.getVersion());
 					mDbUsage = dbUsage;
+				} catch (Throwable ex) {
+					mDbUsage = null; // retry
+					Util.bug(null, ex);
+				}
+
+			return mDbUsage;
+		}
+	}
+
+	/**
+	 * Emulating the style of DB created by original author
+	 * @return
+	 */
+	private SQLiteDatabase getDbPrajit() {
+		synchronized (this) {
+			// Check current reference
+			if (mDbUsage != null && !mDbUsage.isOpen()) {
+				mDbUsage = null;
+				Util.log(null, Log.ERROR, "Prajit database not open");
+			}
+
+			if (mDbUsage == null)
+				try {
+					// Create/upgrade database when needed
+					File dbPrajitFile = getDbPrajitFile();
+					SQLiteDatabase dbPrajit = SQLiteDatabase.openOrCreateDatabase(dbPrajitFile, null);
+
+					// Check database integrity
+					if (dbPrajit.isDatabaseIntegrityOk())
+						Util.log(null, Log.WARN, "Prajit database integrity ok");
+					else {
+						dbPrajit.close();
+						dbPrajitFile.delete();
+						new File(dbPrajitFile + "-journal").delete();
+						dbPrajit = SQLiteDatabase.openOrCreateDatabase(dbPrajitFile, null);
+						Util.log(null, Log.WARN, "Deleted corrupt prajit data database");
+					}
+
+					// Upgrade database if needed
+					if (dbPrajit.needUpgrade(1)) {
+						Util.log(null, Log.WARN, "Creating prajit database");
+						mLockUsage.writeLock().lock();
+						try {
+							dbPrajit.beginTransaction();
+							try {
+								dbPrajit.execSQL(PKDConstants.CREATE_RESTRICTIONS_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_USAGE_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_SETTINGS_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_RESTRICTIONS_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_SETTINGS_TABLE);
+								dbPrajit.execSQL(PKDConstants.CREATE_INDEX_USAGE_TABLE);
+								Log.v(PKDConstants.getDebugTag(), "I came to PrajitDBHelper.onCreate()");	
+								dbPrajit.setVersion(1);
+								dbPrajit.setTransactionSuccessful();
+							} finally {
+								dbPrajit.endTransaction();
+							}
+						} finally {
+							mLockUsage.writeLock().unlock();
+						}
+					}
+
+//					if (dbPrajit.needUpgrade(2)) {
+//						Util.log(null, Log.WARN, "Upgrading prajit database from version=" + dbPrajit.getVersion());
+//						mLockUsage.writeLock().lock();
+//						try {
+//							dbPrajit.beginTransaction();
+//							try {
+//								dbUsage.execSQL("ALTER TABLE usage ADD COLUMN value TEXT");
+//								dbUsage.setVersion(2);
+//								dbUsage.setTransactionSuccessful();
+//							} finally {
+//								dbUsage.endTransaction();
+//							}
+//						} finally {
+//							mLockUsage.writeLock().unlock();
+//						}
+//					}
+
+					Util.log(null, Log.WARN, "Changing to asynchronous mode");
+					try {
+						dbPrajit.rawQuery("PRAGMA synchronous=OFF", null);
+					} catch (Throwable ex) {
+						Util.bug(null, ex);
+					}
+
+					Util.log(null, Log.WARN, "Prajit database version=" + dbPrajit.getVersion());
+					mDbUsage = dbPrajit;
 				} catch (Throwable ex) {
 					mDbUsage = null; // retry
 					Util.bug(null, ex);

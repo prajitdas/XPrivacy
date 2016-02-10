@@ -38,7 +38,7 @@ public class PrajitDBHelper extends SQLiteOpenHelper {
 	public static final String COL_SETTINGS_TAB_VALUE = "value";
 	public static final String COL_SETTINGS_TAB_TYPE = "type";
 
-	public static final String DATABASE_NAME = "XPrivacyDB";
+	public static final String DATABASE_NAME = "prajit";
 	public static final int DATABASE_VERSION = 1;
 	
 	public static final String RESTRICTIONS_TABLE_NAME = "restriction";
