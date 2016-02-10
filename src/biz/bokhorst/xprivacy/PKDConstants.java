@@ -70,6 +70,7 @@ public class PKDConstants {
 			+ COL_USAGE_TAB_UID + ", "
 			+ COL_USAGE_TAB_RESTRICTION + ", "
 			+ COL_USAGE_TAB_METHOD + ", "
+			+ COL_USAGE_TAB_TIME + ", "
 			+ COL_USAGE_TAB_EXTRA + ");";
 	/**
 	 * Database Constants Ends
