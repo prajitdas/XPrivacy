@@ -253,6 +253,7 @@ public class PrivacyProvider extends ContentProvider {
 		SharedPreferences prefs = getContext().getSharedPreferences(PREF_USAGE + "." + restrictionName,
 				Context.MODE_PRIVATE);
 		String values = prefs.getString(getUsagePref(uid, methodName), null);
+		Log.v(PKDConstants.getDebugTag()+"usage","came to values "+values.length());
 		if (values != null) {
 			String[] value = values.split(":");
 			long timeStamp = Long.parseLong(value[0]);
