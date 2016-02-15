@@ -233,13 +233,18 @@ public class PrivacyProvider extends ContentProvider {
 					}
 			}
 		} else {
+			Log.v(PKDConstants.getDebugTag()+"usage","came to the other usage ");
 			// Selected restrictions/methods
 			for (String eRestrictionName : listRestriction)
 				if (methodName == null)
-					for (Hook md : PrivacyManager.getHooks(eRestrictionName, null))
+					for (Hook md : PrivacyManager.getHooks(eRestrictionName, null)) {
 						getUsage(uid, eRestrictionName, md.getName(), cursor);
-				else
+						Log.v(PKDConstants.getDebugTag()+"usage","came to the hook usage "+uid+" "+eRestrictionName+" "+md.getName());
+					}
+				else {
 					getUsage(uid, eRestrictionName, methodName, cursor);
+					Log.v(PKDConstants.getDebugTag()+"usage","came to the non-hook usage "+uid+" "+eRestrictionName+" "+methodName);
+				}
 		}
 		return cursor;
 	}
