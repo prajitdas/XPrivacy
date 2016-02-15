@@ -111,7 +111,7 @@ public class PrivacyProvider extends ContentProvider {
 			int uid = Integer.parseInt(selectionArgs[0]);
 			String methodName = (selectionArgs.length >= 2 ? selectionArgs[1] : null);
 			
-			Log.v(PKDConstants.getDebugTag(),selectionArgs[1]);
+			Log.v(PKDConstants.getDebugTag()+"usage","going to usage with "+restrictionName+" and "+selectionArgs[1]);
 
 			return queryUsage(uid, restrictionName, methodName);
 		} else if (sUriMatcher.match(uri) == TYPE_SETTING && selectionArgs == null)
@@ -207,9 +207,6 @@ public class PrivacyProvider extends ContentProvider {
 		MatrixCursor cursor = new MatrixCursor(new String[] { COL_UID, COL_RESTRICTION, COL_METHOD, COL_RESTRICTED,
 				COL_USED });
 
-		Log.v(PKDConstants.getDebugTag()+"usage",restrictionName);
-		Log.v(PKDConstants.getDebugTag()+"usage",methodName);
-
 		List<String> listRestriction;
 		if (restrictionName == null)
 			listRestriction = PrivacyManager.getRestrictions();
@@ -219,6 +216,7 @@ public class PrivacyProvider extends ContentProvider {
 		}
 
 		if (uid == 0) {
+			Log.v(PKDConstants.getDebugTag()+"usage","came to usage ");
 			// All
 			for (String eRestrictionName : PrivacyManager.getRestrictions()) {
 				SharedPreferences prefs = getContext().getSharedPreferences(PREF_USAGE + "." + eRestrictionName,
@@ -229,6 +227,9 @@ public class PrivacyProvider extends ContentProvider {
 						int rUid = Integer.parseInt(prefParts[1]);
 						String rMethodName = prefName.substring(prefParts[0].length() + 1 + prefParts[1].length() + 1);
 						getUsage(rUid, eRestrictionName, rMethodName, cursor);
+						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+rUid);
+						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+eRestrictionName);
+						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+rMethodName);
 					}
 			}
 		} else {
