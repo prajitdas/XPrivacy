@@ -221,13 +221,17 @@ public class PrivacyProvider extends ContentProvider {
 			for (String eRestrictionName : PrivacyManager.getRestrictions()) {
 				SharedPreferences prefs = getContext().getSharedPreferences(PREF_USAGE + "." + eRestrictionName,
 						Context.MODE_PRIVATE);
-				Log.v(PKDConstants.getDebugTag()+"usage","came to usage prefs "+prefs.toString());
+//				Log.v(PKDConstants.getDebugTag()+"usage","came to usage prefs "+prefs.toString());
 				for (String prefName : prefs.getAll().keySet())
 					if (prefName.startsWith(COL_USED)) {
 						String[] prefParts = prefName.split("\\.");
 						int rUid = Integer.parseInt(prefParts[1]);
 						String rMethodName = prefName.substring(prefParts[0].length() + 1 + prefParts[1].length() + 1);
+
+						Log.v(PKDConstants.getDebugTag()+"usage","came to usage prefs "+rUid+" "+eRestrictionName+" "+rMethodName);
+						
 						getUsage(rUid, eRestrictionName, rMethodName, cursor);
+						
 						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+rUid);
 						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+eRestrictionName);
 						Log.v(PKDConstants.getDebugTag()+"usage","came to usage "+rMethodName);
