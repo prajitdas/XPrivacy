@@ -111,7 +111,7 @@ public class PrivacyProvider extends ContentProvider {
 			int uid = Integer.parseInt(selectionArgs[0]);
 			String methodName = (selectionArgs.length >= 2 ? selectionArgs[1] : null);
 			
-			Log.v(PKDConstants.getDebugTag(),selectionArgs[0]);
+			Log.v(PKDConstants.getDebugTag(),selectionArgs[1]);
 
 			return queryUsage(uid, restrictionName, methodName);
 		} else if (sUriMatcher.match(uri) == TYPE_SETTING && selectionArgs == null)
@@ -206,6 +206,9 @@ public class PrivacyProvider extends ContentProvider {
 	private Cursor queryUsage(int uid, String restrictionName, String methodName) {
 		MatrixCursor cursor = new MatrixCursor(new String[] { COL_UID, COL_RESTRICTION, COL_METHOD, COL_RESTRICTED,
 				COL_USED });
+
+		Log.v(PKDConstants.getDebugTag()+"usage",restrictionName);
+		Log.v(PKDConstants.getDebugTag()+"usage",methodName);
 
 		List<String> listRestriction;
 		if (restrictionName == null)
