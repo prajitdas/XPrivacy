@@ -111,7 +111,7 @@ public class PrivacyProvider extends ContentProvider {
 			int uid = Integer.parseInt(selectionArgs[0]);
 			String methodName = (selectionArgs.length >= 2 ? selectionArgs[1] : null);
 			
-			Log.v(PKDConstants.getDebugTag(),selection);
+			Log.v(PKDConstants.getDebugTag(),selectionArgs[0]);
 
 			return queryUsage(uid, restrictionName, methodName);
 		} else if (sUriMatcher.match(uri) == TYPE_SETTING && selectionArgs == null)
