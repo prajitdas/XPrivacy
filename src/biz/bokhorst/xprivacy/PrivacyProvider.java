@@ -221,6 +221,7 @@ public class PrivacyProvider extends ContentProvider {
 			for (String eRestrictionName : PrivacyManager.getRestrictions()) {
 				SharedPreferences prefs = getContext().getSharedPreferences(PREF_USAGE + "." + eRestrictionName,
 						Context.MODE_PRIVATE);
+				Log.v(PKDConstants.getDebugTag()+"usage","came to usage prefs "+prefs.toString());
 				for (String prefName : prefs.getAll().keySet())
 					if (prefName.startsWith(COL_USED)) {
 						String[] prefParts = prefName.split("\\.");
@@ -252,8 +253,9 @@ public class PrivacyProvider extends ContentProvider {
 	private void getUsage(int uid, String restrictionName, String methodName, MatrixCursor cursor) {
 		SharedPreferences prefs = getContext().getSharedPreferences(PREF_USAGE + "." + restrictionName,
 				Context.MODE_PRIVATE);
+		Log.v(PKDConstants.getDebugTag()+"usage","came to value prefs "+prefs.toString());
 		String values = prefs.getString(getUsagePref(uid, methodName), null);
-		Log.v(PKDConstants.getDebugTag()+"usage","came to values "+values.length());
+		Log.v(PKDConstants.getDebugTag()+"usage","came to value usages "+values.length());
 		if (values != null) {
 			String[] value = values.split(":");
 			long timeStamp = Long.parseLong(value[0]);
